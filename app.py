@@ -1,7 +1,8 @@
 import streamlit as st
 import pandas as pd
 import joblib
-
+import sklearn
+print(sklearn.__version__)
 # Load trained model
 model = joblib.load("linear_regression_model.pkl")
 
