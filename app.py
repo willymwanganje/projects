@@ -71,7 +71,13 @@ st.markdown(
 # ============================================================
 @st.cache_data
 def load_dataset():
-    return pd.read_csv(DATA_PATH) if os.path.exists(DATA_PATH) else None
+    if not os.path.exists(DATA_PATH):
+        return None
+    data = pd.read_csv(DATA_PATH)
+    # Align raw CSV column name with the TARGET name used throughout this app
+    if "Monthly_Electricity_Consumption_kWh" in data.columns:
+        data = data.rename(columns={"Monthly_Electricity_Consumption_kWh": TARGET})
+    return data
 
 
 @st.cache_resource
