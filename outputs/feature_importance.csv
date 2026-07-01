@@ -1,0 +1,19 @@
+Feature,Importance
+Has_Air_Conditioner,34.45942809139143
+Has_Fridge,28.65227264018459
+Number_of_Appliances,25.547660992487227
+Has_Water_Heater,23.949236642711035
+Daily_Usage_Hours_Avg,22.949461594198585
+Has_Electric_Kettle,16.150485612363433
+House Type: Bungalow,11.652519870741319
+Number_of_Occupants,10.819666654134412
+Has_Electric_Iron,9.449079643010776
+Has_Microwave,7.326866249018822
+House Type: Self-Contained,4.573269908703176
+Has_Fan,4.493040839367705
+Has_Phone_Charger,3.913031871870537
+Has_Washing_Machine,3.2276570695549083
+Has_Multiple_Lighting_Bulbs,1.9761776369520812
+House Type: Single Room,1.1368746189951757
+Has_TV,0.7787462618740832
+Has_Radio,0.6654744002854667

@@ -1,0 +1,13 @@
+{
+  "best_model": "Linear Regression",
+  "train_rows": 160,
+  "test_rows": 40,
+  "results": [
+    {
+      "Model": "Linear Regression",
+      "MAE": 20.373,
+      "RMSE": 30.234,
+      "R2_Score": 0.8812
+    }
+  ]
+}

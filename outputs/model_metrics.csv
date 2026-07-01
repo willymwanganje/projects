@@ -1,0 +1,2 @@
+Model,MAE,RMSE,R2_Score
+Linear Regression,20.373,30.234,0.8812
