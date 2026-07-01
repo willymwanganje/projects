@@ -311,7 +311,14 @@ elif page == "⚡ Electricity Consumption Prediction":
             ])
 
             try:
-                prediction = float(model.predict(input_df)[0])
+                raw_prediction = float(model.predict(input_df)[0])
+                prediction = max(0.0, raw_prediction)  # consumption can't be negative
+                if raw_prediction < 0:
+                    st.warning(
+                        f"⚠️ Model's raw output was {raw_prediction:.2f} kWh (negative). "
+                        "This happens when inputs fall outside the range the model was "
+                        "trained on. Displaying 0 kWh instead."
+                    )
                 st.success(f"⚡ Estimated Monthly Consumption: **{prediction:.2f} kWh**")
 
                 c1, c2, c3 = st.columns(3)
