@@ -8,6 +8,18 @@
       "MAE": 20.373,
       "RMSE": 30.234,
       "R2_Score": 0.8812
+    },
+    {
+      "Model": "Random Forest",
+      "MAE": 31.842,
+      "RMSE": 39.41,
+      "R2_Score": 0.7981
+    },
+    {
+      "Model": "Decision Tree",
+      "MAE": 42.81,
+      "RMSE": 56.96,
+      "R2_Score": 0.5783
     }
   ]
 }

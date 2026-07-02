@@ -60,6 +60,10 @@ st.markdown(
         background: linear-gradient(135deg, #EBF5FB 0%, #D6EAF8 100%);
         border-radius: 12px; padding: 18px; border-left: 5px solid #2E86AB;
     }
+    .analysis-box {
+        background: #FEF9E7; border-left: 5px solid #F1C40F;
+        border-radius: 10px; padding: 16px 20px; margin-top: 10px;
+    }
     .footer { text-align: center; color: #808B96; padding-top: 2rem; font-size: 0.85rem; }
     </style>
     """,
@@ -99,6 +103,64 @@ metrics_json, metrics_df, fi_df = load_metrics()
 
 if "history" not in st.session_state:
     st.session_state.history = []
+
+# ============================================================
+# HELPER: AUTO-GENERATED ACADEMIC ANALYSIS TEXT
+# ============================================================
+def build_model_analysis_text(metrics_df: pd.DataFrame) -> str:
+    """Generate a short, automatic, academic-style justification of the
+    best model based on the comparison metrics table. Used on the
+    Model Comparison and Model Performance pages."""
+    ranked = metrics_df.sort_values("R2_Score", ascending=False).reset_index(drop=True)
+    best = ranked.iloc[0]
+    rest = ranked.iloc[1:]
+
+    lines = []
+    lines.append(
+        f"**{best['Model']}** ilifanya vizuri zaidi kati ya models zote zilizojaribiwa, "
+        f"ikipata **R² = {best['R2_Score']:.4f}** (kadiri R² inavyokaribia 1, ndivyo model "
+        f"inavyoeleza tofauti (variance) ya data kwa usahihi zaidi) na **RMSE = {best['RMSE']:.2f} kWh**, "
+        f"ambayo ndiyo kosa la wastani (average prediction error) dogo zaidi kati ya models zote."
+    )
+
+    if len(rest) > 0:
+        comparisons = []
+        for _, row in rest.iterrows():
+            diff_r2 = best["R2_Score"] - row["R2_Score"]
+            diff_rmse = row["RMSE"] - best["RMSE"]
+            comparisons.append(
+                f"{row['Model']} (R² = {row['R2_Score']:.4f}, RMSE = {row['RMSE']:.2f} kWh — "
+                f"chini kwa {diff_r2:.4f} R² na juu kwa {diff_rmse:.2f} kWh ya RMSE ikilinganishwa na {best['Model']})"
+            )
+        lines.append("Kwa kulinganisha: " + "; ".join(comparisons) + ".")
+
+    # Simple heuristic explanation based on model family
+    name = best["Model"].lower()
+    if "linear" in name:
+        lines.append(
+            "Hii inaonyesha kuwa uhusiano kati ya vigezo (occupants, saa za matumizi, vifaa vya "
+            "umeme) na matumizi ya umeme kwa kiasi kikubwa ni wa mstari (linear), hivyo model "
+            "rahisi ya Linear Regression inatosha bila kuhitaji ugumu wa ziada wa models za tree-based."
+        )
+    elif "decision tree" in name:
+        lines.append(
+            "Hii inaonyesha kuwa kuna mahusiano yasiyo ya mstari (non-linear) na mwingiliano kati "
+            "ya vigezo (feature interactions) ambayo Decision Tree inaweza kunasa vizuri zaidi kuliko "
+            "model ya mstari."
+        )
+    elif "random forest" in name:
+        lines.append(
+            "Kwa kuwa Random Forest ni ensemble ya miti mingi ya maamuzi (decision trees), "
+            "inapunguza overfitting na inanasa vizuri mahusiano changamano/yasiyo ya mstari kati ya "
+            "vigezo, ndiyo maana inafanya vizuri zaidi kuliko model moja peke yake."
+        )
+
+    lines.append(
+        f"Kwa sababu hizi, **{best['Model']}** ndiyo model iliyochaguliwa kutumika kwenye ukurasa "
+        f"wa Prediction wa app hii."
+    )
+    return "\n\n".join(lines)
+
 
 # ============================================================
 # SIDEBAR NAVIGATION
@@ -157,7 +219,9 @@ if page == "🏠 Home":
         st.write(
             "This application estimates a household's monthly electricity consumption "
             "(kWh) based on occupants, daily usage hours, house type, and appliances "
-            "present. The best-performing trained model is used automatically for predictions."
+            "present. Three regression algorithms (Linear Regression, Decision Tree, "
+            "Random Forest) were trained and compared; the best-performing one is used "
+            "automatically for predictions."
         )
     with tab2:
         st.markdown(
@@ -268,12 +332,18 @@ elif page == "🤖 Model Comparison":
                           title="RMSE by Model (lower = better)", color="RMSE")
             st.plotly_chart(fig2, use_container_width=True)
 
+        st.markdown("### 🧠 Uchambuzi (Automated Analysis)")
+        st.markdown(f'<div class="analysis-box">{build_model_analysis_text(metrics_df)}</div>', unsafe_allow_html=True)
+
 # ============================================================
 # PAGE: PREDICTION
 # ============================================================
 elif page == "⚡ Electricity Consumption Prediction":
     st.markdown('<p class="main-header">⚡ Electricity Consumption Prediction</p>', unsafe_allow_html=True)
     st.write("Enter household details below to estimate monthly electricity consumption.")
+
+    if metrics_json is not None:
+        st.caption(f"🏆 Prediction inatolewa na model bora zaidi: **{metrics_json.get('best_model', 'N/A')}**")
 
     if model is None:
         st.error(f"❌ Model not found at `{MODEL_PATH}`.")
@@ -365,6 +435,10 @@ elif page == "📋 Model Performance":
                          orientation="h", title="Top Feature Importances", color="Importance")
             st.plotly_chart(fig, use_container_width=True)
 
+        if metrics_df is not None:
+            st.markdown("### 🧠 Uchambuzi (Automated Analysis)")
+            st.markdown(f'<div class="analysis-box">{build_model_analysis_text(metrics_df)}</div>', unsafe_allow_html=True)
+
 # ============================================================
 # PAGE: DOWNLOAD PREDICTION
 # ============================================================
@@ -400,7 +474,10 @@ elif page == "ℹ️ About":
 
         Estimates a household's monthly electricity consumption using a
         trained regression model based on occupancy, usage habits, house
-        type, and appliance ownership.
+        type, and appliance ownership. Three algorithms — Linear Regression,
+        Decision Tree, and Random Forest — were trained and compared, and
+        the best-performing model (selected automatically by R² score) is
+        used for live predictions.
 
         **Tech Stack:** Python, scikit-learn, pandas, Streamlit, Plotly
 
