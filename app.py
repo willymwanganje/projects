@@ -63,6 +63,10 @@ st.markdown(
     .analysis-box {
         background: #FEF9E7; border-left: 5px solid #F1C40F;
         border-radius: 10px; padding: 16px 20px; margin-top: 10px;
+        color: #1B2631;
+    }
+    .analysis-box p, .analysis-box strong, .analysis-box b {
+        color: #1B2631 !important;
     }
     .footer { text-align: center; color: #808B96; padding-top: 2rem; font-size: 0.85rem; }
     </style>
