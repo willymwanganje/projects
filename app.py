@@ -105,7 +105,7 @@ if "history" not in st.session_state:
     st.session_state.history = []
 
 # ============================================================
-# HELPER: AUTO-GENERATED ACADEMIC ANALYSIS TEXT
+# HELPER: AUTO-GENERATED ANALYSIS TEXT
 # ============================================================
 def build_model_analysis_text(metrics_df: pd.DataFrame) -> str:
     """Generate a short, automatic, academic-style justification of the
@@ -117,10 +117,10 @@ def build_model_analysis_text(metrics_df: pd.DataFrame) -> str:
 
     lines = []
     lines.append(
-        f"**{best['Model']}** ilifanya vizuri zaidi kati ya models zote zilizojaribiwa, "
-        f"ikipata **R² = {best['R2_Score']:.4f}** (kadiri R² inavyokaribia 1, ndivyo model "
-        f"inavyoeleza tofauti (variance) ya data kwa usahihi zaidi) na **RMSE = {best['RMSE']:.2f} kWh**, "
-        f"ambayo ndiyo kosa la wastani (average prediction error) dogo zaidi kati ya models zote."
+        f"**{best['Model']}** performed best among all models evaluated, achieving "
+        f"**R² = {best['R2_Score']:.4f}** (the closer R² is to 1, the more accurately the "
+        f"model explains the variance in the data) and **RMSE = {best['RMSE']:.2f} kWh**, "
+        f"the lowest average prediction error among all models tested."
     )
 
     if len(rest) > 0:
@@ -130,34 +130,35 @@ def build_model_analysis_text(metrics_df: pd.DataFrame) -> str:
             diff_rmse = row["RMSE"] - best["RMSE"]
             comparisons.append(
                 f"{row['Model']} (R² = {row['R2_Score']:.4f}, RMSE = {row['RMSE']:.2f} kWh — "
-                f"chini kwa {diff_r2:.4f} R² na juu kwa {diff_rmse:.2f} kWh ya RMSE ikilinganishwa na {best['Model']})"
+                f"{diff_r2:.4f} lower in R² and {diff_rmse:.2f} kWh higher in RMSE compared to {best['Model']})"
             )
-        lines.append("Kwa kulinganisha: " + "; ".join(comparisons) + ".")
+        lines.append("By comparison: " + "; ".join(comparisons) + ".")
 
     # Simple heuristic explanation based on model family
     name = best["Model"].lower()
     if "linear" in name:
         lines.append(
-            "Hii inaonyesha kuwa uhusiano kati ya vigezo (occupants, saa za matumizi, vifaa vya "
-            "umeme) na matumizi ya umeme kwa kiasi kikubwa ni wa mstari (linear), hivyo model "
-            "rahisi ya Linear Regression inatosha bila kuhitaji ugumu wa ziada wa models za tree-based."
+            "This suggests that the relationship between the input features (occupants, "
+            "daily usage hours, appliances) and electricity consumption is largely linear, "
+            "so a simple Linear Regression model is sufficient without the added complexity "
+            "of tree-based models."
         )
     elif "decision tree" in name:
         lines.append(
-            "Hii inaonyesha kuwa kuna mahusiano yasiyo ya mstari (non-linear) na mwingiliano kati "
-            "ya vigezo (feature interactions) ambayo Decision Tree inaweza kunasa vizuri zaidi kuliko "
-            "model ya mstari."
+            "This suggests there are non-linear relationships and feature interactions in "
+            "the data that a Decision Tree can capture more effectively than a purely "
+            "linear model."
         )
     elif "random forest" in name:
         lines.append(
-            "Kwa kuwa Random Forest ni ensemble ya miti mingi ya maamuzi (decision trees), "
-            "inapunguza overfitting na inanasa vizuri mahusiano changamano/yasiyo ya mstari kati ya "
-            "vigezo, ndiyo maana inafanya vizuri zaidi kuliko model moja peke yake."
+            "Because Random Forest is an ensemble of many decision trees, it reduces "
+            "overfitting and captures complex, non-linear relationships between features "
+            "more effectively than a single model, which explains its stronger performance."
         )
 
     lines.append(
-        f"Kwa sababu hizi, **{best['Model']}** ndiyo model iliyochaguliwa kutumika kwenye ukurasa "
-        f"wa Prediction wa app hii."
+        f"For these reasons, **{best['Model']}** was selected as the model used on the "
+        f"Prediction page of this app."
     )
     return "\n\n".join(lines)
 
@@ -332,7 +333,7 @@ elif page == "🤖 Model Comparison":
                           title="RMSE by Model (lower = better)", color="RMSE")
             st.plotly_chart(fig2, use_container_width=True)
 
-        st.markdown("### 🧠 Uchambuzi (Automated Analysis)")
+        st.markdown("### 🧠 Automated Analysis")
         st.markdown(f'<div class="analysis-box">{build_model_analysis_text(metrics_df)}</div>', unsafe_allow_html=True)
 
 # ============================================================
@@ -343,7 +344,7 @@ elif page == "⚡ Electricity Consumption Prediction":
     st.write("Enter household details below to estimate monthly electricity consumption.")
 
     if metrics_json is not None:
-        st.caption(f"🏆 Prediction inatolewa na model bora zaidi: **{metrics_json.get('best_model', 'N/A')}**")
+        st.caption(f"🏆 This prediction is generated by the best-performing model: **{metrics_json.get('best_model', 'N/A')}**")
 
     if model is None:
         st.error(f"❌ Model not found at `{MODEL_PATH}`.")
@@ -436,7 +437,7 @@ elif page == "📋 Model Performance":
             st.plotly_chart(fig, use_container_width=True)
 
         if metrics_df is not None:
-            st.markdown("### 🧠 Uchambuzi (Automated Analysis)")
+            st.markdown("### 🧠 Automated Analysis")
             st.markdown(f'<div class="analysis-box">{build_model_analysis_text(metrics_df)}</div>', unsafe_allow_html=True)
 
 # ============================================================
